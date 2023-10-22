@@ -10,6 +10,8 @@ import com.example.user_module.model.request.SignUpForm;
 import com.example.user_module.model.request.UpdateEmailInfoForm;
 import com.example.user_module.model.request.UpdateProfilePassword;
 import com.example.user_module.model.request.UpdateProfileRequest;
+import com.example.user_module.model.response.UserInfoResponse;
+import com.example.user_module.model.response.UserInfoWithPrivateResponse;
 import com.example.user_module.repository.RefreshTokenRepository;
 import com.example.user_module.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,7 @@ public class UserService {
 
     @Transactional
     public UserDTO registerUser(SignUpForm request) {
-        if (userRepository.getByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new EntityAlreadyExistsException("User with this email already exists");
         }
         if (userRepository.existsByLogin(request.getLogin())) {
@@ -62,7 +64,7 @@ public class UserService {
     }
 
     @Transactional
-    public CredentialsDTO getCredentials(UserDTO user) {
+    public UserInfoResponse getUserInfo(UserDTO user) {
         if (!user.getIsVerified()) {
             throw new EmailNotVerification("The email is not verification ");
         }
@@ -70,7 +72,19 @@ public class UserService {
             throw new TokenExpiredException("The token is not valid ");
         }
 
-        return userMapper.toCredentialsDTOFromDTO(user);
+        return userMapper.toUserInfoResponseFromUserDTO(user);
+    }
+
+    @Transactional
+    public UserInfoWithPrivateResponse getUserInfoWithPrivate(UserDTO user) {
+        if (!user.getIsVerified()) {
+            throw new EmailNotVerification("The email is not verification ");
+        }
+        if (refreshTokenRepository.getAllByUser_UserId(user.getUserId()) == 0) {
+            throw new TokenExpiredException("The token is not valid ");
+        }
+
+        return userMapper.toUserInfoWithPrivateResponseFromUserDTO(user);
     }
 
     @Transactional

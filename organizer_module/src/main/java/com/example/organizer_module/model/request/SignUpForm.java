@@ -1,8 +1,8 @@
-package com.example.user_module.model.request;
+package com.example.organizer_module.model.request;
 
-import com.example.user_module.annotation.Duration;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.organizer_module.annotation.Duration;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -13,7 +13,6 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -64,4 +63,29 @@ public class SignUpForm {
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
     @Size(min = 8, max = 20, message = "Пароль не может быть меньше 8 и больше 20 символов")
     private String repeatPassword;
+
+    @NotBlank(message = "Инн не может быть пустым")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 12, max = 12, message = "Инн должен быть 12 символов")
+    private String INN;
+
+    @NotBlank(message = "Серия и номер паспорта не могут быть пустыми")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min =  10, max = 10, message = "Серия и номер паспорта должны быть 10 символов")
+    private String passportNumberAndSerial;
+
+    @NotBlank(message = "Информация о том кем выдан не может быть пустой")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size( max = 250, message = "Информация о том кем выдан не может быть больше 250 символов")
+    private String passportIssuedWhom;
+
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @DateTimeFormat(pattern = "yyyy-mm-dd")
+    @Duration
+    private LocalDate passportDate;
+
+    @NotBlank(message = "Адрес не может быть пустой")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size( max = 250, message = "Адрес не может быть больше 250 символов")
+    private String address;
 }

@@ -55,7 +55,7 @@ public class AuthenticationService {
     void sendCode(UserDTO user, UUID code) {
         senderService.sendTemplate(
                 user.getEmail(),
-                "Подтверждение регистрации  в мессенджере Relex",
+                "Подтверждение регистрации  в  ticket seller",
                 EmailTemplate.VERIFICATION_USER,
                 new VerificationEmailDTO(user.getFirstName() + " " + user.getSecondName()+" "+user.getSurname(),
                         verificationLink + "/" + code.toString()));

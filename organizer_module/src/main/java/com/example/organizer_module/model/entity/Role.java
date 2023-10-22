@@ -1,5 +1,4 @@
-package com.example.user_module.model.entity;
-
+package com.example.organizer_module.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -11,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 
 @Entity
-@Table(name = "role_buyer")
+@Table(name = "role_organizer")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

@@ -1,19 +1,17 @@
-package com.example.user_module.service;
+package com.example.organizer_module.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.user_module.exception.EntityDoesNotExistException;
-import com.example.user_module.exception.TokenValidationException;
-import com.example.user_module.model.dto.TokensDTO;
-import com.example.user_module.model.dto.UserDTO;
-import com.example.user_module.model.entity.*;
-import com.example.user_module.model.request.RefreshTokenRequest;
-import com.example.user_module.repository.*;
+import com.example.organizer_module.exception.EntityDoesNotExistException;
+import com.example.organizer_module.model.dto.OrganizerDTO;
+import com.example.organizer_module.model.dto.TokensDTO;
+import com.example.organizer_module.model.entity.RefreshToken;
+import com.example.organizer_module.model.request.RefreshTokenRequest;
+import com.example.organizer_module.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,11 +21,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,16 +35,24 @@ public class TokenService {
     private static final String LOGIN_CLAIM="login";
 
     private static final String DATE_OF_BIRTH="date-of-birth";
+
     private static final String TICKET_SELLER_SERVER = "ticket-seller-server";
+
     private static final String EXPIRATION_CLAIM = "exp";
+
     private static final String ROLES_CLAIM = "roles";
+
     private static final String EMAIL_CLAIM = "email";
 
     private static final String CITY = "city";
+
+    private static final String ADDRESS = "address";
+
     private static final String FULL_NAME_CLAIM = "fullName";
 
     private final UserDetailsService userDetailsService;
-    private final UserService userService;
+
+    private final OrganizerService organizerService;
 
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -61,6 +64,7 @@ public class TokenService {
 
     @Value("${security.jwt.refresh-token.expire-date-days}")
     private Integer refreshTokenExpireTimeInDays;
+
 
     public void authenticate(String authHeader) {
         DecodedJWT decodedJWT = decodeJWT(authHeader);
@@ -107,35 +111,36 @@ public class TokenService {
     }
 
     @Transactional
-    public TokensDTO createTokens(UserDTO user) {
-        return new TokensDTO(generateAccessToken(user), generateRefreshToken(user).toString());
+    public TokensDTO createTokens(OrganizerDTO organizerDTO) {
+        return new TokensDTO(generateAccessToken(organizerDTO), generateRefreshToken(organizerDTO).toString());
     }
 
-    private String generateAccessToken(UserDTO user) {
+    private String generateAccessToken(OrganizerDTO organizerDTO) {
         return JWT.create()
-                .withSubject(user.getUserId().toString())
+                .withSubject(organizerDTO.getOrganizerId().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenExpireTimeInMs))
                 .withIssuer(TICKET_SELLER_SERVER)
-                .withClaim(ROLES_CLAIM, user.getRoles().stream()
+                .withClaim(ROLES_CLAIM, organizerDTO.getRoles().stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList()
                 )
-                .withClaim(EMAIL_CLAIM, user.getEmail())
-                .withClaim(LOGIN_CLAIM, user.getLogin())
-                .withClaim(CITY, user.getCity())
-                .withClaim(DATE_OF_BIRTH, String.valueOf(user.getDateOfBirth()))
-                .withClaim(FULL_NAME_CLAIM, user.getFirstName().concat(" ")
-                        .concat(user.getSecondName())
-                        .concat(" ").concat(user.getSurname()))
+                .withClaim(EMAIL_CLAIM, organizerDTO.getEmail())
+                .withClaim(LOGIN_CLAIM, organizerDTO.getLogin())
+                .withClaim(CITY, organizerDTO.getCity())
+                .withClaim(ADDRESS, organizerDTO.getAddress())
+                .withClaim(DATE_OF_BIRTH, String.valueOf(organizerDTO.getDateOfBirth()))
+                .withClaim(FULL_NAME_CLAIM, organizerDTO.getFirstName().concat(" ")
+                        .concat(organizerDTO.getSecondName())
+                        .concat(" ").concat(organizerDTO.getSurname()))
                 .sign(getAlgorithm());
     }
 
-    private UUID generateRefreshToken(UserDTO user) {
+    private UUID generateRefreshToken(OrganizerDTO organizerDTO) {
         UUID refreshToken = UUID.randomUUID();
         refreshTokenRepository.saveNewRefreshToken(
                 refreshToken,
                 Instant.now().plusSeconds(fromDaysToSeconds(refreshTokenExpireTimeInDays)),
-                user.getUserId());
+                organizerDTO.getOrganizerId());
         return refreshToken;
     }
 
@@ -144,15 +149,15 @@ public class TokenService {
     }
 
     public TokensDTO refreshAccessToken(RefreshTokenRequest request) {
-        RefreshTokenEntity refreshToken = findRefreshTokenById(request.getRefreshToken());
+        RefreshToken refreshToken = findRefreshTokenById(request.getRefreshToken());
         checkIfTokenIsExpired(refreshToken.getValidTill());
         return new TokensDTO(
-                generateAccessToken(userService.getUserByEmail(refreshToken.getUser().getEmail())),
+                generateAccessToken(organizerService.getOrganizerByEmail(refreshToken.getOrganizer().getEmail())),
                 refreshToken.getToken().toString()
         );
     }
 
-    private RefreshTokenEntity findRefreshTokenById(String refreshToken) {
+    private RefreshToken findRefreshTokenById(String refreshToken) {
         return refreshTokenRepository.findById(String.valueOf(UUID.fromString(refreshToken))).orElseThrow(
                 () -> new EntityDoesNotExistException("Токен не существует")
         );

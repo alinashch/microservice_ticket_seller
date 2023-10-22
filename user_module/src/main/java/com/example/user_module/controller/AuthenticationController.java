@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import static org.apache.naming.ResourceRef.AUTH;
+import static com.example.user_module.model.constant.Tag.AUTH;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController

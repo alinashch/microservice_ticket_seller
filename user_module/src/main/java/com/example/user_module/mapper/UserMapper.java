@@ -5,6 +5,8 @@ import com.example.user_module.model.dto.RoleDTO;
 import com.example.user_module.model.dto.UserDTO;
 import com.example.user_module.model.entity.*;
 import com.example.user_module.model.request.*;
+import com.example.user_module.model.response.UserInfoResponse;
+import com.example.user_module.model.response.UserInfoWithPrivateResponse;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -19,9 +21,9 @@ public interface UserMapper {
 
     User toEntityFromDTO(UserDTO dto);
 
-    UserRequest toRequestFromEntity(User user);
+    UserInfoResponse toUserInfoResponseFromUserDTO(UserDTO dto);
 
-    CredentialsDTO toCredentialsDTOFromDTO(UserDTO dto);
+    UserInfoWithPrivateResponse toUserInfoWithPrivateResponseFromUserDTO(UserDTO dto);
 
     @Mapping(target = "isVerified", expression = "java(false)")
     @Mapping(target = "dateOfBirth" , source = "request.dateOfBirth")

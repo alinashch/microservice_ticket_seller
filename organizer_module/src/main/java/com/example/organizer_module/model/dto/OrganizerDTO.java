@@ -1,6 +1,6 @@
-package com.example.user_module.model.dto;
+package com.example.organizer_module.model.dto;
 
-import com.example.user_module.model.entity.*;
+import com.example.organizer_module.model.entity.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,18 +11,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserDTO  implements UserDetails {
+public class OrganizerDTO   implements UserDetails  {
 
-    private Long userId;
+    private Long organizerId;
 
     private String email;
 
@@ -30,20 +30,31 @@ public class UserDTO  implements UserDetails {
 
     private String firstName;
 
-    private String surname;
-
     private String secondName;
 
-    @JsonIgnore
+    private String surname;
+
+    private String city;
+
     private String passwordHash;
 
     private LocalDate dateOfBirth;
 
     private Boolean isVerified;
 
-    private String city;
+    private Boolean isConfirmed;
 
-    private Set<Role> roles = new HashSet<>();
+    private String INN;
+
+    private String passportNumberAndSerial;
+
+    private String passportIssuedWhom;
+
+    private LocalDate passportDate;
+
+    private String address;
+
+    private Set<Role> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -80,4 +91,6 @@ public class UserDTO  implements UserDetails {
     public boolean isEnabled() {
         return isVerified;
     }
+
+
 }

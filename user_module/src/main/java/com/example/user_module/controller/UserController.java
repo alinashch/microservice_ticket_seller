@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.user_module.model.constant.Role.USER;
+import static com.example.user_module.model.constant.Tag.USER;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -28,7 +28,7 @@ public class UserController {
 
     private final AuthenticationService authService;
 
-    @GetMapping("/credentials")
+    @GetMapping("/user-info")
     @Operation(summary = "Получение информации о пользователе", tags = USER, responses = {
             @ApiResponse(responseCode = "200", description = "Получение данные", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = CredentialsDTO.class))
@@ -40,9 +40,26 @@ public class UserController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionDTO.class))
             })
     })
-    public ResponseEntity<?> getCredentials(Authentication authentication) {
+    public ResponseEntity<?> getUserInfo(Authentication authentication) {
         UserDTO user = userService.getUserByLogin((String) authentication.getPrincipal());
-        return ResponseBuilder.build(OK, userService.getCredentials(user));
+        return ResponseBuilder.build(OK, userService.getUserInfo(user));
+    }
+
+    @GetMapping("/user-info-private")
+    @Operation(summary = "Получение информации о пользователе", tags = USER, responses = {
+            @ApiResponse(responseCode = "200", description = "Получение данные", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CredentialsDTO.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Невалидные входные данные", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionDTO.class))
+            }),
+            @ApiResponse(responseCode = "403", description = "Нет доступа", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionDTO.class))
+            })
+    })
+    public ResponseEntity<?> getUserInfoWithPrivate(Authentication authentication) {
+        UserDTO user = userService.getUserByLogin((String) authentication.getPrincipal());
+        return ResponseBuilder.build(OK, userService.getUserInfoWithPrivate(user));
     }
 
     @PutMapping("/profile/update/personal-information")

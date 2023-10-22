@@ -1,3 +1,6 @@
+server:
+  port: 8882
+
 spring:
   jpa:
     database: POSTGRESQL

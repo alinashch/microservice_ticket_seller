@@ -1,0 +1,31 @@
+package com.example.organizer_module.model.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = "verification")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class Verification {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID verificationId;
+
+    @Column(nullable = false)
+    private Instant validTill;
+
+    @Column(nullable = false, unique = true)
+    private UUID code;
+
+    @ManyToOne
+    @JoinColumn(name = "organizer_id")
+    private Organizer organizer;
+}
