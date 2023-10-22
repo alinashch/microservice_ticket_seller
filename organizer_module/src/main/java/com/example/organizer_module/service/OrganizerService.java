@@ -5,10 +5,8 @@ import com.example.organizer_module.mapper.OrganizerMapper;
 import com.example.organizer_module.mapper.RoleMapper;
 import com.example.organizer_module.model.dto.OrganizerDTO;
 import com.example.organizer_module.model.entity.Organizer;
-import com.example.organizer_module.model.request.SignUpForm;
-import com.example.organizer_module.model.request.UpdateEmailRequest;
-import com.example.organizer_module.model.request.UpdatePasswordRequest;
-import com.example.organizer_module.model.request.UpdatePersonalInfoRequest;
+import com.example.organizer_module.model.request.*;
+import com.example.organizer_module.model.response.OrganizerConfirmResponse;
 import com.example.organizer_module.model.response.OrganizerInfoResponse;
 import com.example.organizer_module.model.response.OrganizerInfoWithPrivateResponse;
 import com.example.organizer_module.repository.OrganizerRepository;
@@ -101,20 +99,51 @@ public class OrganizerService {
     }
 
     @Transactional
-    public void updatePassword(OrganizerDTO organizerDTO, UpdatePasswordRequest request) {
+    public void updatePassportInfo(OrganizerDTO organizerDTO, UpdatePassportInfoRequest request) {
         if (refreshTokenRepository.getAllByUser_UserId(organizerDTO.getOrganizerId()) == 0) {
             throw new TokenExpiredException("The token is not valid");
-        }
-        if (!request.getPassword().equals(request.getRepeatPassword())) {
-            throw new PasswordDoesNotMatchException("Password does not match");
         }
         Organizer entity = organizerMapper.toEntityFromDTO(organizerDTO);
         if (!entity.getIsVerified()) {
             throw new EmailNotVerification("The email is not verification ");
         }
+        organizerMapper.updateEntity(request, entity);
+        organizerRepository.save(entity);
+    }
+
+    @Transactional
+    public void updateINNInfo(OrganizerDTO organizerDTO, UpdateINNRequest request) {
+        if (refreshTokenRepository.getAllByUser_UserId(organizerDTO.getOrganizerId()) == 0) {
+            throw new TokenExpiredException("The token is not valid");
+        }
+        Organizer entity = organizerMapper.toEntityFromDTO(organizerDTO);
+        if (!entity.getIsVerified()) {
+            throw new EmailNotVerification("The email is not verification ");
+        }
+        organizerMapper.updateEntity(request, entity);
+        organizerRepository.save(entity);
+    }
+
+    @Transactional
+    public void updatePassword(OrganizerDTO organizerDTO, UpdatePasswordRequest request) {
+        if (refreshTokenRepository.getAllByUser_UserId(organizerDTO.getOrganizerId()) == 0) {
+            throw new TokenExpiredException("The token is not valid");
+        }
+        Organizer entity = organizerMapper.toEntityFromDTO(organizerDTO);
+        if (!entity.getIsVerified()) {
+            throw new EmailNotVerification("The email is not verification ");
+        }
+        if (!request.getPassword().equals(request.getRepeatPassword())) {
+            throw new PasswordDoesNotMatchException("Password does not match");
+        }
         entity.setPasswordHash(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
         organizerMapper.updateEntity(request, entity);
         organizerRepository.save(entity);
+    }
+
+    @Transactional
+    public OrganizerConfirmResponse getConfirmStatus(OrganizerDTO organizerDTO){
+        return organizerMapper.toOrganizerConfirmResponseFromUserDTO(organizerRepository.getById(organizerDTO.getOrganizerId()));
     }
 
     @Transactional
@@ -123,11 +152,10 @@ public class OrganizerService {
             throw new TokenExpiredException("The token is not valid");
         }
         Organizer entity = organizerMapper.toEntityFromDTO(organizerDTO);
-        entity.setIsVerified(false);
         if (organizerRepository.getByEmail(request.getEmail()).isPresent()) {
             throw new EntityAlreadyExistsException("USer with this email already exists");
         }
-
+        entity.setIsVerified(false);
         organizerMapper.updateEntity(request, entity);
         return organizerMapper.toDTOFromEntity(organizerRepository.save(entity));
     }
@@ -154,6 +182,7 @@ public class OrganizerService {
         }
         organizerRepository.deleteToken(organizerRepository.getByLogin(login).get().getOrganizerId());
     }
+
 
     public OrganizerDTO getOrganizerByEmail(String email) {
         Organizer user = organizerRepository.getByEmail(email).orElseThrow(

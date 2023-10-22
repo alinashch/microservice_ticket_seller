@@ -3,10 +3,8 @@ package com.example.organizer_module.mapper;
 import com.example.organizer_module.model.dto.OrganizerDTO;
 import com.example.organizer_module.model.dto.RoleDTO;
 import com.example.organizer_module.model.entity.Organizer;
-import com.example.organizer_module.model.request.SignUpForm;
-import com.example.organizer_module.model.request.UpdateEmailRequest;
-import com.example.organizer_module.model.request.UpdatePasswordRequest;
-import com.example.organizer_module.model.request.UpdatePersonalInfoRequest;
+import com.example.organizer_module.model.request.*;
+import com.example.organizer_module.model.response.OrganizerConfirmResponse;
 import com.example.organizer_module.model.response.OrganizerInfoResponse;
 import com.example.organizer_module.model.response.OrganizerInfoWithPrivateResponse;
 import org.mapstruct.*;
@@ -27,6 +25,8 @@ public interface OrganizerMapper {
 
     OrganizerInfoWithPrivateResponse toUserInfoWithPrivateResponseFromUserDTO(OrganizerDTO dto);
 
+    OrganizerConfirmResponse toOrganizerConfirmResponseFromUserDTO(Organizer organizer);
+
     @Mapping(target = "isVerified", expression = "java(false)")
     @Mapping(target = "isConfirmed", expression = "java(false)")
     @Mapping(target = "dateOfBirth" , source = "request.dateOfBirth")
@@ -43,5 +43,11 @@ public interface OrganizerMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(UpdateEmailRequest request, @MappingTarget Organizer entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(UpdatePassportInfoRequest request, @MappingTarget Organizer entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(UpdateINNRequest request, @MappingTarget Organizer entity);
 
 }

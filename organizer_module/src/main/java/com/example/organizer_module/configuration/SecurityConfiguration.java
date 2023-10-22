@@ -36,6 +36,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable();
         http.authorizeHttpRequests()
+                .requestMatchers(POST, "/auth/resend-code", "/auth/signOut").hasAnyAuthority(ORGANIZER)
+                .requestMatchers(POST, "/organizer/***").hasAnyAuthority(ORGANIZER)
+                .requestMatchers(PUT, "/organizer/***").hasAnyAuthority(ORGANIZER)
+                .requestMatchers(DELETE, "/organizer/***").hasAnyAuthority(ORGANIZER)
+                .requestMatchers(GET, "/organizer/***").hasAnyAuthority(ORGANIZER)
+
+
                 .anyRequest().permitAll();
 
         http.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)

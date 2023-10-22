@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum EmailTemplate implements Template {
 
-    VERIFICATION_USER("email/Verification");
+    VERIFICATION_ORGANIZER("email/Verification");
 
     private final String name;
 }
