@@ -1,0 +1,28 @@
+server:
+  port: 8883
+
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ticket_seller_event
+    username: postgres
+    password: 1234
+    driverClassName: org.postgresql.Driver
+  sql:
+    init:
+      platform: postgres
+
+security:
+  jwt:
+    secret-key: ticket_seller
+    access-token:
+
+      #30 seconds
+      expire-date-ms: 300000000
+
+    refresh-token:
+      expire-date-days: 30

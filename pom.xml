@@ -19,5 +19,6 @@
     <modules>
         <module>user_module</module>
         <module>organizer_module</module>
+        <module>event_module</module>
     </modules>
 </project>
